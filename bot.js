@@ -1,10 +1,12 @@
 require("dotenv").config();
+
 const fs = require('fs'),
     Discord = require('discord.js'),
     client = new Discord.Client(),
-    id = '840530547926630430',
     prefix = '!';
+
 client.commands = new Discord.Collection();
+
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
@@ -14,8 +16,7 @@ for (const file of commandFiles) {
 
 client.on('ready', () => console.log('👋'));
 
-client.on("message", async(msg) => {
-    if (message.channel.id != id) return;
+client.on("message", async(message) => {
     if (!message.content.startsWith(prefix) || message.author.bot) return;
 
     const args = message.content.slice(prefix.length).trim().split(/ +/);
