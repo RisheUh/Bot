@@ -1,36 +1,39 @@
-var prefix = '!';
-const fs = require('fs')
-const Discord = require('discord.js');
-var { length } = prefix;
-
-
+const { MessageEmbed } = require('discord.js');
+const { prefix } = require('./../utils/config.json');
 
 module.exports = {
-    name: 'message',
-    execute(message, client) {
+    event: 'message',
+    run: async(message, client) => {
+        if (!message.content.startsWith(prefix) || message.author.bot) return;
+        const args = message.content.slice(prefix.length).split(/ +/);
+        const commandName = args.shift().toLowerCase();
+        const command =
+            client.commands.get(commandName) ||
+            client.commands.find(
+                (cmd) => cmd.aliases && cmd.aliases.includes(commandName)
+            );
 
-        client = { "commands": new Discord.Collection() }
+        if (!command) return;
 
-        const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
-        for (const file of commandFiles) {
-            const command = require(`../commands/${file}`);
-            client.commands.set(command.name, command);
-        };
+        if (command.guildOnly && message.channel.type !== 'text') {
+            return message.reply("I can't execute that command inside DMs!");
+        }
 
-        const { content, author } = message;
+        if (command.args && !args.length) {
+            let reply = `You didn't provide any arguments, ${message.author}!`;
+            if (command.usage) {
+                reply += `\nThe proper usage would be: \`${prefix}${command.name} ${command.usage}\``;
+            }
+            return message.channel.send(reply);
+        }
 
-        if (!content.startsWith(prefix) || author.bot) return;
 
-        const args = content.slice(length).trim().split(/ +/);
-        const command = args.shift().toLowerCase();
-
-        if (!client.commands.has(command)) return;
 
         try {
-            client.commands.get(command).execute(message, args, client);
+            command.execute(message, args, client);
         } catch (error) {
             console.error(error);
-            message.reply('there was an error trying to execute that command!');
+            message.reply('There was an error trying to execute that command!');
         }
     },
 };

@@ -5,16 +5,17 @@ const fs = require('fs'),
     client = new Discord.Client();
 
 async function stat() {
-    const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
+    client.commands = new Discord.Collection();
+    client.aliases = new Discord.Collection();
 
-    for (const file of eventFiles) {
-        const event = require(`./events/${file}`);
-        if (event.once) {
-            client.once(event.name, (...args) => event.execute(...args, client));
-        } else {
-            client.on(event.name, (...args) => event.execute(...args, client));
-        }
-    }
+    fs.readdir('./events/', (err, files) => {
+        const eventHandler = require('./handler/eventHandler.js');
+        eventHandler(err, files, client);
+    });
+    fs.readdir('./commands/', (err, files) => {
+        const commandHandler = require('./handler/commandHandler.js');
+        commandHandler(err, files, client);
+    });
 }
 async function login() {
     try {
