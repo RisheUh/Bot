@@ -1,34 +1,35 @@
-require("dotenv").config();
+require("dotenv").config({ path: 'h.env' });
 
 const fs = require('fs'),
     Discord = require('discord.js'),
-    client = new Discord.Client(),
-    prefix = '!';
+    client = new Discord.Client();
 
-client.commands = new Discord.Collection();
+async function stat() {
+    const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
-
-for (const file of commandFiles) {
-    const command = require(`./commands/${file}`);
-    client.commands.set(command.name, command);
+    for (const file of eventFiles) {
+        const event = require(`./events/${file}`);
+        if (event.once) {
+            client.once(event.name, (...args) => event.execute(...args, client));
+        } else {
+            client.on(event.name, (...args) => event.execute(...args, client));
+        }
+    }
+}
+async function login() {
+    try {
+        await client.login(process.env.BOTTOKEN);
+        global.client = client
+        client.user.setStatus('online')
+        module.exports = { client, Discord };
+    } catch (e) {
+        console.error(e)
+    }
+    await stat()
 };
 
-client.on('ready', () => console.log('👋'));
+process.on('beforeExit', (code) => {
+    client.destroy();
+})
 
-client.on("message", async(message) => {
-    if (!message.content.startsWith(prefix) || message.author.bot) return;
-
-    const args = message.content.slice(prefix.length).trim().split(/ +/);
-    const command = args.shift().toLowerCase();
-
-    if (!client.commands.has(command)) return;
-
-    try {
-        client.commands.get(command).execute(message, args);
-    } catch (error) {
-        console.error(error);
-        message.reply('there was an error trying to execute that command!');
-    }
-});
-client.login(process.env.BOTTOKEN);
+login();
