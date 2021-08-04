@@ -9,7 +9,7 @@ module.exports = {
     aliases: [],
     usage: '',
     guildOnly: false,
-    args: false,
+    args: true,
     execute: (message, args, client) => {
 
         //defaults to query being default if there is no query

@@ -3,7 +3,7 @@ const { prefix } = require('./../utils/config.json');
 module.exports = {
     event: 'message',
     run: async(message, client) => {
-        if (!message.content.startsWith(prefix) || message.author.bot) return;
+        if (!message.content.startsWith(prefix)) return;
         const args = message.content.slice(prefix.length).split(/ +/);
         const commandName = args.shift().toLowerCase();
         const command =

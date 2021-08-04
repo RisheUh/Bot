@@ -8,7 +8,7 @@ module.exports = {
     aliases: ['b'],
     usage: '',
     guildOnly: true,
-    args: false,
+    args: true,
     execute(message, args) {
         const { reply, member, members } = message;
         const { mentions } = members

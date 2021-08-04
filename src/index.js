@@ -1,15 +1,20 @@
 require("dotenv").config({ path: '../h.env' });
 
 const fs = require('fs'),
-    Discord = require('discord.js'),
-    client = new Discord.Client();
-client.commands = new Discord.Collection();
-client.aliases = new Discord.Collection();
+    { Client, Collection, Intents } = require('discord.js'),
+    client = new Client({
+        intents: [
+            Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES
+        ]
+    });
+client.commands = new Collection();
+client.aliases = new Collection();
 
 fs.readdir('./events/', (err, files) => {
     const eventHandler = require('./handler/eventHandler.js');
     eventHandler(err, files, client);
 });
+
 fs.readdir('./commands/', (err, files) => {
     const commandHandler = require('./handler/commandHandler.js');
     commandHandler(err, files, client);
@@ -17,8 +22,4 @@ fs.readdir('./commands/', (err, files) => {
 
 client.login(process.env.BOTTOKEN);
 
-process.on('beforeExit', (code) => {
-    client.destroy();
-})
-
-module.exports = { client, Discord };
+module.exports = { client };
