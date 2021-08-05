@@ -1,4 +1,4 @@
-require("dotenv").config({ path: '../h.env' });
+const env = require('../settings');
 
 const fs = require('fs'),
     { Client, Collection, Intents } = require('discord.js'),
@@ -20,6 +20,6 @@ fs.readdir('./commands/', (err, files) => {
     commandHandler(err, files, client);
 });
 
-client.login(process.env.BOTTOKEN);
+client.login(env.BOTTOKEN);
 
 module.exports = { client };

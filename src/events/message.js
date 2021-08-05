@@ -1,4 +1,4 @@
-const { prefix } = require('./../utils/config.json');
+const { prefix } = require('../../settings');
 
 module.exports = {
     event: 'message',
